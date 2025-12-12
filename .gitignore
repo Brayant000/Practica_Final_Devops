@@ -1,0 +1,11 @@
+echo "# Python" > .gitignore
+echo "venv/" >> .gitignore
+echo "__pycache__/" >> .gitignore
+echo "*.pyc" >> .gitignore
+echo "" >> .gitignore
+echo "# IDE" >> .gitignore
+echo ".vscode/" >> .gitignore
+echo ".idea/" >> .gitignore
+echo "" >> .gitignore
+echo "# Docker" >> .gitignore
+echo "*.log" >> .gitignore
