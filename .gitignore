@@ -8,4 +8,7 @@ echo ".vscode/" >> .gitignore
 echo ".idea/" >> .gitignore
 echo "" >> .gitignore
 echo "# Docker" >> .gitignore
-echo "*.log" >> .gitignore
+echo "*.log" >> .gitignore-e 
+# Environment files
+*.env
+*.env.*
