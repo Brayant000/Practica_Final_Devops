@@ -1,0 +1,79 @@
+name: CI/CD Pipeline - Practica Final DevOps
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: brayant002/practica-final-devops
+  
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v3
+    
+    - name: Configurar Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Instalar dependencias
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Ejecutar pruebas unitarias
+      run: |
+        python -m pytest test_app.py -v
+    
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v3
+    
+    - name: Configurar Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Login a Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Construir imagen Docker
+      run: |
+        docker build -t ${{ env.IMAGE_NAME }}:latest .
+        docker tag ${{ env.IMAGE_NAME }}:latest ${{ env.IMAGE_NAME }}:${{ github.sha }}
+    
+    - name: Subir imagen a Docker Hub
+      run: |
+        docker push ${{ env.IMAGE_NAME }}:latest
+        docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
+    
+  deploy-notification:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Mostrar información de despliegue
+      run: |
+        echo "✅ ¡Pipeline CI/CD completado exitosamente!"
+        echo "📦 Imagen Docker: ${{ env.IMAGE_NAME }}"
+        echo "🏷️ Tags: latest, ${{ github.sha }}"
+        echo "🐳 Docker Hub: https://hub.docker.com/r/brayant002/practica-final-devops"
+        echo ""
+        echo "🎉 ¡Práctica Final DevOps completada!"
+        echo ""
+        echo "Para desplegar en producción:"
+        echo "1. Puedes usar Render.com, Heroku, o AWS"
+        echo "2. La imagen está lista para usar"
